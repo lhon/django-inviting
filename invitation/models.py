@@ -62,7 +62,11 @@ class InvitationManager(models.Manager):
         except (Invitation.DoesNotExist, IndexError):
             pass
         if invitation is None:
-            user.invitation_stats.use()
+            try:
+                stats = user.invitation_stats
+            except InvitationStats.DoesNotExist:
+                stats = InvitationStats.objects.create(user=user)
+            stats.use()
             key = '%s%0.16f%s%s' % (settings.SECRET_KEY,
                                     random.random(),
                                     user.email,
