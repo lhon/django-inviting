@@ -280,7 +280,7 @@ class InvitationStats(models.Model):
 
         ``invitation.signals.invitation_added`` is sent at the end.
         """
-        self.available = models.F('available') + count
+        self.available += count
         self.save()
         signals.invitation_added.send(sender=self, user=self.user, count=count)
     add_available.alters_data = True
@@ -299,10 +299,10 @@ class InvitationStats(models.Model):
         """
         if app_settings.INVITE_ONLY:
             if self.available - count >= 0:
-                self.available = models.F('available') - count
+                self.available -= count
             else:
                 raise InvitationError('No available invitations.')
-        self.sent = models.F('sent') + count
+        self.sent += count
         self.save()
     use.alters_data = True
 
@@ -321,7 +321,7 @@ class InvitationStats(models.Model):
         if self.accepted + count > self.sent:
             raise InvitationError('There can\'t be more accepted ' \
                                   'invitations than sent invitations.')
-        self.accepted = models.F('accepted') + count
+        self.accepted += count
         self.save()
     mark_accepted.alters_data = True
 
